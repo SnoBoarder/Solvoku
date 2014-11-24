@@ -19,3 +19,10 @@ Sudoku Solver Unity Application
 - Allow the user to "select an algorithm" under the "nerdy stuff" tab.
 - Show statistics of how efficient one solver is over another.
 - Display the values in another color from the original sudoku problem.
+
+## In the making
+- Created User Interface
+- Create solver:
+	- Backtracking:
+		- Researched algorithm and attempt to implement
+		- Harder than expected

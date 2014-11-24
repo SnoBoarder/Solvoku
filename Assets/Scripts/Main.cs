@@ -24,10 +24,10 @@ namespace Assets.Scripts
 
         void OnEnable()
         {
-            _solveButton.onClick += solveBoard;
-
             if (_inputSlots == null)
                 return;
+
+            _solveButton.onClick += solveBoard;
 
             int len = _inputSlots.Count;
             for (int i = 0; i < len; ++i)
@@ -38,10 +38,10 @@ namespace Assets.Scripts
 
         void OnDisable()
         {
-            _solveButton.onClick -= solveBoard;
-
             if (_inputSlots == null)
                 return;
+
+            _solveButton.onClick -= solveBoard;
 
             int len = _inputSlots.Count;
             for (int i = 0; i < len; ++i)
@@ -52,7 +52,7 @@ namespace Assets.Scripts
 
         private void solveBoard()
         {
-            _board.solve(SudokuBoard.SolverTypes.BRUTE_FORCE);
+            _board.solve(SudokuBoard.SolverTypes.BACKTRACKING);
         }
 
         private void createInputSlots()

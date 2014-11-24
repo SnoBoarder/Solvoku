@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Button.cs" />
     <Compile Include="Assets\Scripts\Main.cs" />
+    <Compile Include="Assets\Scripts\Solvers\BacktrackingSolver.cs" />
     <Compile Include="Assets\Scripts\Solvers\BaseSolver.cs" />
     <Compile Include="Assets\Scripts\SudokuBoard.cs" />
     <Compile Include="Assets\Scripts\SudokuSlot.cs" />

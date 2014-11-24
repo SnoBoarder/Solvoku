@@ -15,7 +15,7 @@ namespace Assets.Scripts
 
         protected int _id;
 
-        protected int _value = 0;
+        protected int _value = SudokuBoard.EMPTY_CELL;
 
         // Use this for initialization
         void Start()
@@ -45,6 +45,11 @@ namespace Assets.Scripts
             _highlight.gameObject.SetActive(false);
         }
 
+        public void setTextColor(Color c)
+        {
+            _text.color = c;
+        }
+
         public void setBackgroundColor(Color c)
         {
             _background.color = c;
@@ -57,7 +62,7 @@ namespace Assets.Scripts
             set
             {
                 _value = value;
-                _text.text = _value.ToString();
+                _text.text = _value == SudokuBoard.EMPTY_CELL ? "" : _value.ToString();
             }
         }
 

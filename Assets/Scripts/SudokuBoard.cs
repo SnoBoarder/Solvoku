@@ -8,7 +8,9 @@ namespace Assets.Scripts
 {
     public class SudokuBoard : MonoBehaviour
     {
-        public enum SolverTypes { BRUTE_FORCE, BACKTRACING, SCHOTASTIC };
+        public enum SolverTypes { BRUTE_FORCE, BACKTRACKING, SCHOTASTIC };
+
+        public const int EMPTY_CELL = 0;
 
         public const int NUM_ROWS = 9;
         public const int NUM_COLS = 9;
@@ -46,8 +48,39 @@ namespace Assets.Scripts
         {
             _cells = new int[SudokuBoard.NUM_ROWS * SudokuBoard.NUM_COLS];
 
+            BaseSolver.init();
+
             // instantiate the board
             createSlots();
+
+            // use test board
+            testBoard();
+        }
+
+        private void testBoard()
+        {
+            //string sudokuStr = "6,7,2,1,4,5,3,9,8,1,4,5,9,8,3,6,7,2,3,8,9,7,6,2,4,5,1,2,6,3,5,7,4,8,1,9,9,5,8,6,2,1,7,4,3,7,1,4,3,9,8,5,2,6,5,9,7,2,3,6,1,8,4,4,2,6,8,1,7,9,3,5,8,3,1,4,5,9,2,6,7";
+
+
+            string sudokuStr = "0,0,0,1,0,5,0,0,0,1,4,0,0,0,0,6,7,0,0,8,0,0,0,2,4,0,0,0,6,3,0,7,0,0,1,0,9,0,0,0,0,0,0,0,3,0,1,0,0,9,0,5,2,0,0,0,7,2,0,0,0,8,0,0,2,6,0,0,0,0,3,5,0,0,0,4,0,9,0,0,0";
+            //6,7,2,1,4,5,3,9,8,
+            //1,4,5,9,8,3,6,7,2,
+            //3,8,9,7,6,2,4,5,1,
+            //2,6,3,5,7,4,8,1,9,
+            //9,5,8,6,2,1,7,4,3,
+            //7,1,4,3,9,8,5,2,6,
+            //5,9,7,2,3,6,1,8,4,
+            //4,2,6,8,1,7,9,3,5,
+            //8,3,1,4,5,9,2,6,7
+
+
+            string[] sudokuArr = sudokuStr.Split(',');
+            int len = sudokuArr.Length;
+            for (int i = 0; i < len; ++i)
+            {
+                _slots[i].setTextColor(_textSetupColor);
+                _slots[i].slotValue = Convert.ToInt32(sudokuArr[i]);
+            }
         }
 
         void OnEnable()
@@ -76,6 +109,7 @@ namespace Assets.Scripts
 
         public void updateSelectedSlot(int newValue)
         {
+            _selectedSlot.setTextColor(_textSetupColor);
             _selectedSlot.slotValue = newValue;
         }
 
@@ -97,12 +131,23 @@ namespace Assets.Scripts
             switch (type)
             {
                 case SolverTypes.BRUTE_FORCE:
-                    BaseSolver.solve(_cells);
                     break;
-                case SolverTypes.BACKTRACING:
+                case SolverTypes.BACKTRACKING:
+                    BacktrackingSolver.solve(_cells);
                     break;
                 case SolverTypes.SCHOTASTIC: // lol fail
                     break;
+            }
+
+            SudokuSlot slot;
+            for (int i = 0; i < len; ++i)
+            {
+                slot = _slots[i];
+                if (slot.slotValue == EMPTY_CELL)
+                {
+                    slot.setTextColor(_textAnswerColor);
+                    slot.slotValue = _cells[i];
+                }
             }
         }
 
@@ -132,7 +177,7 @@ namespace Assets.Scripts
                 for (col = 0; col < NUM_COLS; ++col)
                 {
                     pos.x = col - NUM_HALF_COL;
-                    pos.y = row - NUM_HALF_ROW;
+                    pos.y = -row + NUM_HALF_ROW;
 
                     gObj = (GameObject)Instantiate(_sudokuSlotPrefab, Vector3.zero, Quaternion.identity);
                     gObj.transform.parent = this.gameObject.transform;
