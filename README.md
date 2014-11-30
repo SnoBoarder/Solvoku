@@ -26,3 +26,10 @@ Sudoku Solver Unity Application
 	- Backtracking:
 		- Researched algorithm and attempt to implement
 		- Harder than expected
+		- Cannot be used by itself (depth level goes through the roof!)
+		- Impossible to use by itself
+	- Researched other methods
+		- Algorithm X
+		- Exact Cover Method:
+			- Dancing Links
+		- 

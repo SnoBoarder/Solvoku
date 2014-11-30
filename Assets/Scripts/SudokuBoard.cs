@@ -3,12 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using Assets.Scripts.Solvers;
+using Assets.Scripts.Solvers.DancingLinks;
 
 namespace Assets.Scripts
 {
     public class SudokuBoard : MonoBehaviour
     {
-        public enum SolverTypes { BRUTE_FORCE, BACKTRACKING, SCHOTASTIC };
+        public enum SolverTypes { BRUTE_FORCE, BACKTRACKING, SCHOTASTIC, EXACT_COVER };
 
         public const int EMPTY_CELL = 0;
 
@@ -122,7 +123,9 @@ namespace Assets.Scripts
             for (int i = 0; i < len; ++i)
             {
                 _cells[i] = _slots[i].slotValue;
-                str += _cells[i] + ",";
+                str += _cells[i];
+                if (i + 1 < len)
+                    str += ",";
             }
 
             Debug.Log(str);
@@ -133,9 +136,13 @@ namespace Assets.Scripts
                 case SolverTypes.BRUTE_FORCE:
                     break;
                 case SolverTypes.BACKTRACKING:
-                    BacktrackingSolver.solve(_cells);
+                    //BacktrackingSolver.solve(_cells);
+                    BacktrackingSolver2.solve(_cells);
                     break;
                 case SolverTypes.SCHOTASTIC: // lol fail
+                    break;
+                case SolverTypes.EXACT_COVER:
+                    DancingLinks dl = new DancingLinks(10);
                     break;
             }
 
