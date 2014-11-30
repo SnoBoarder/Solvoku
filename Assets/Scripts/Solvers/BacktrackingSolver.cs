@@ -13,8 +13,6 @@ namespace Assets.Scripts.Solvers
 
         private static int _actions;
 
-        private static int[] _cells;
-
         public static void solve(int[] cells)
         {
             _actions = 0;

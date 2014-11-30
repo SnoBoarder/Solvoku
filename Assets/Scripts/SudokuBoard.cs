@@ -116,7 +116,6 @@ namespace Assets.Scripts
 
         public void solve(SolverTypes type)
         {
-            // TODO: check why the cells aren't populating correctly
             // update cell value with slot values
             int len = _slots.Count;
             string str = "";
@@ -138,8 +137,6 @@ namespace Assets.Scripts
                 case SolverTypes.BACKTRACKING:
                     //BacktrackingSolver.solve(_cells);
                     BacktrackingSolver2.solve(_cells);
-                    break;
-                case SolverTypes.SCHOTASTIC: // lol fail
                     break;
                 case SolverTypes.EXACT_COVER:
                     DancingLinks dl = new DancingLinks(10);

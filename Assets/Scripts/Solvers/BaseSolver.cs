@@ -12,8 +12,6 @@ namespace Assets.Scripts.Solvers
         protected const int NUM_GRIDS = SudokuBoard.NUM_GRIDS;
         protected const int THIRD_OF_GRID = SudokuBoard.THIRD_OF_GRID;
 
-        protected static int[] _cells;
-
         private static int[,] _rowsOfSlots;
         private static int[,] _colsOfSlots;
         private static int[,] _3x3OfSlots;
@@ -22,8 +20,6 @@ namespace Assets.Scripts.Solvers
 
         public static void init()
         {
-            
-
             _values = new bool[NUM_GRIDS];
 
             int row;
@@ -197,16 +193,10 @@ namespace Assets.Scripts.Solvers
             return slot % SudokuBoard.NUM_COLS;
         }
 
-        // int(row / 3) * 3 + int(col / 3)
         public static int getGridOfSlot(int slot)
         {
             return Convert.ToInt32(getRowOfSlot(slot) / THIRD_OF_GRID) * THIRD_OF_GRID + Convert.ToInt32(getColOfSlot(slot) / THIRD_OF_GRID);
         }
-
-        //public virtual void solve(int[] cells)
-        //{
-        //    // solve it
-        //}
 
         public static int getSlotAt(int row, int col)
         {
