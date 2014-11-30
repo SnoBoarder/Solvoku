@@ -7,12 +7,24 @@ namespace Assets.Scripts.Solvers.DancingLinks
 {
     public class DancingLinks
     {
+                                           // position + row                      + column                         + box
+        private const int TOTAL_COLS = 324; // 81 cells + (9 rows * 9 digits rows) + (9 columns * 9 digits columns) + (9 columns * 9 digits box)
+        private const int TOTAL_ROWS = 729; // 81 * 9
+
+        private const int START_OF_ROW_COLUMNS = 81 * 1;
+        private const int START_OF_COL_COLUMNS = 81 * 2;
+        private const int START_OF_BOX_COLUMNS = 81 * 3;
+
         public DancingLinkHeader _head { get; private set; }
         public List<DancingLinkHeader> _cols { get; private set; }
+        public List<DancingLinkNode> _rows { get; private set; }
 
         Stack<DancingLinkNode> _solutions = new Stack<DancingLinkNode>();
 
-        public DancingLinks(int columnCount = 10)
+
+
+
+        public DancingLinks(int columnCount = TOTAL_COLS) 
         {
             // initialize links
             _head = new DancingLinkHeader();
@@ -32,51 +44,88 @@ namespace Assets.Scripts.Solvers.DancingLinks
                 next.left = curr;
                 curr = next;
             }
+            // finish wrapping the last node around
+            _head.left = next;
+            next.right = _head;
 
-            // finish wrapping the column headers
-            DancingLinkHeader firstHeader = _cols[0];
-            _head.right = firstHeader;
-            firstHeader.left = _head;
-
-            DancingLinkHeader lastHeader = _cols[_cols.Count - 1];
-            _head.left = lastHeader;
-            lastHeader.right = _head;
-        }
-
-        /// <summary>
-        /// See: http://sudopedia.enjoysudoku.com/Dancing_Links.html
-        /// </summary>
-        private void setupColumns()
-        {
-            // setup columns for initial setting
-
-            // setup headers
-
-
-        }
-
-        /// <summary>
-        /// See: http://sudopedia.enjoysudoku.com/Dancing_Links.html
-        /// </summary>
-        private void addRow(int index, int row, int col, int block)
-        {
-
-        }
-
-        public void buildFullMatrix()
-        {
-            setupColumns();
-
+            // create matrix of all possible sudoku positions
+            _rows = new List<DancingLinkNode>(TOTAL_ROWS);
             for (int i = 0; i < 81; ++i)
             {
                 for (int value = 1; value <= 9; ++value)
                 {
                     int row = i / 9;
                     int col = i % 9;
-                    int block = ((i / 27) * 3) + ((i % 9) / 3);
-                    addRow(i, row, col, block);
+                    int box = ((i / 27) * 3) + ((i % 9) / 3);
+
+                    int rowIndex = START_OF_ROW_COLUMNS + (row * 9 + value - 1); // "value - 1" to make it base 0
+                    int colIndex = START_OF_COL_COLUMNS + (col * 9 + value - 1);
+                    int boxIndex = START_OF_BOX_COLUMNS + (box * 9 + value - 1);
+                    addRow(i, rowIndex, colIndex, boxIndex); // adds a row to the matrix and to the _rows array
                 }
             }
+        }
+
+        /// <summary>
+        /// See: http://sudopedia.enjoysudoku.com/Dancing_Links.html
+        /// </summary>
+        private void addRow(int index, int rowIndex, int colIndex, int boxIndex)
+        {
+            DancingLinkHeader header;
+            DancingLinkNode start;
+            DancingLinkNode prev;
+
+            // get column for the appropriate indices
+
+            // set first node of the row to define the matrix's position
+            header = _cols[index];
+            start = createNode(null, header);
+            _rows.Add(start); // only need to store the reference to the first item
+
+            // set rowindex of the row
+            header = _cols[rowIndex];
+            prev = createNode(start, header);
+
+            // set colIndex of the row
+            header = _cols[colIndex];
+            prev = createNode(prev, header);
+
+            // set boxIndex of the row
+            header = _cols[boxIndex];
+            prev = createNode(prev, header);
+
+            // loop the row
+            start.left = prev;
+            prev.right = start;
+        }
+
+        private DancingLinkNode createNode(DancingLinkNode last, DancingLinkHeader head)
+        {
+            DancingLinkNode newNode = new DancingLinkNode();
+
+            // set left/right connections
+            if (last != null)
+            {
+                newNode.left = last;
+                newNode.right = last.right;
+                newNode.left.right = newNode;
+                newNode.right.left = newNode;
+            }
+            else
+            { // first in the row, refer to itself
+                newNode.left = newNode;
+                newNode.right = newNode;
+            }
+
+            // set up/down connections
+            newNode.header = head;
+            ++head.count;
+            newNode.down = head;
+            newNode.up = head.up;
+            newNode.up.down = newNode;
+            newNode.down.up = newNode;
+
+            return newNode;
         }
 
         public void loadData(int[] cells)
@@ -89,10 +138,65 @@ namespace Assets.Scripts.Solvers.DancingLinks
                 if (value == SudokuBoard.EMPTY_CELL)
                     continue;
 
+                int row = i / 9;
+                int col = i % 9;
+                int box = ((i / 27) * 3) + ((i % 9) / 3);
 
+                int rowIndex = START_OF_ROW_COLUMNS + (row * 9 + value - 1); // "value - 1" to make it base 0
+                int colIndex = START_OF_COL_COLUMNS + (col * 9 + value - 1);
+                int boxIndex = START_OF_BOX_COLUMNS + (box * 9 + value - 1);
+
+                // remove the 4 columns as an option
+                cover(_cols[i]);
+                cover(_cols[rowIndex]);
+                cover(_cols[colIndex]);
+                cover(_cols[boxIndex]);
+
+                // TODO: do I actually need to store this solution? we already know it...
+                //_solution.Add(w/e);
             }
         }
 
+        /* NOT NEEDED (cover and uncover handle this)
+        private void disable(int rowIndex)
+        {
+            DancingLinkNode start = _rows[rowIndex];
+            DancingLinkNode curr = start;
+
+            do
+            {
+                if (curr.down != curr) // prevent disabling the same node twice
+                {
+                    curr.down.up = curr.up;
+                    curr.up.down = curr.down;
+                    curr.up = curr;
+                    --curr.header.count;
+                }
+                curr = curr.right;
+            }
+            while (curr != start);
+        }
+
+        private void enable(int rowIndex)
+        {
+            DancingLinkNode start = _rows[rowIndex];
+            DancingLinkNode curr = start;
+
+            do
+            {
+                if (curr.down != curr) // prevent disabling the same node twice
+                {
+                    curr.down = curr.header;
+                    curr.up = curr.header.up;
+                    curr.down.up = curr;
+                    curr.up.down = curr;
+                    ++curr.header.count;
+                }
+                curr = curr.right;
+            }
+            while (curr != start);
+        }
+        */
         public void search(int depth)
         {
             if (_head.right == _head)
