@@ -26,10 +26,19 @@ Sudoku Solver Unity Application
 	- Backtracking:
 		- Researched algorithm and attempt to implement
 		- Harder than expected
-		- Cannot be used by itself (depth level goes through the roof!)
+		- Cannot be used by itself
+			- depth level goes through the roof!
+			- Even for easy levels
 		- Impossible to use by itself
 	- Researched other methods
-		- Algorithm X
 		- Exact Cover Method:
-			- Dancing Links
-		- 
+			- Algorithm X
+				- Dancing Links
+					- FIGURED OUT THE ALGORITHM! EXTREMELY DIFFICULT TO UNDERSTAND
+					- Very efficient and works on MOST sudoku boards!
+					- Still doesn't work for extremely difficult levels
+					- http://sudopedia.enjoysudoku.com/Dancing_Links.html
+					- https://www.ocf.berkeley.edu/~jchu/publicportal/sudoku/sudoku.paper.html
+					- https://www.ocf.berkeley.edu/~jchu/publicportal/sudoku/0011047.pdf
+					- http://garethrees.org/2007/06/10/zendoku-generation/
+
