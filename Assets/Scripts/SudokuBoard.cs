@@ -55,7 +55,7 @@ namespace Assets.Scripts
             createSlots();
 
             // use test board
-            testBoard();
+            //testBoard();
         }
 
         private void testBoard()
@@ -73,7 +73,6 @@ namespace Assets.Scripts
             //5,9,7,2,3,6,1,8,4,
             //4,2,6,8,1,7,9,3,5,
             //8,3,1,4,5,9,2,6,7
-
 
             string[] sudokuArr = sudokuStr.Split(',');
             int len = sudokuArr.Length;
@@ -117,6 +116,7 @@ namespace Assets.Scripts
         public void solve(SolverTypes type)
         {
             // update cell value with slot values
+            /*
             int len = _slots.Count;
             string str = "";
             for (int i = 0; i < len; ++i)
@@ -128,6 +128,7 @@ namespace Assets.Scripts
             }
 
             Debug.Log(str);
+            */
 
             // TODO: DECIDE HERE WHICH SOLVER TO USE
             switch (type)
@@ -139,11 +140,13 @@ namespace Assets.Scripts
                     BacktrackingSolver2.solve(_cells);
                     break;
                 case SolverTypes.EXACT_COVER:
-                    DancingLinks dl = new DancingLinks(10);
+                    SudokuDancingLinks dl = new SudokuDancingLinks();
+                    dl.loadAndSearch(_cells);
                     break;
             }
 
             SudokuSlot slot;
+            int len = _slots.Count;
             for (int i = 0; i < len; ++i)
             {
                 slot = _slots[i];

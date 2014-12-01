@@ -52,7 +52,7 @@ namespace Assets.Scripts
 
         private void solveBoard()
         {
-            _board.solve(SudokuBoard.SolverTypes.BACKTRACKING);
+            _board.solve(SudokuBoard.SolverTypes.EXACT_COVER);
         }
 
         private void createInputSlots()
@@ -91,7 +91,32 @@ namespace Assets.Scripts
 	
 	    // Update is called once per frame
 	    void Update () {
-	
+            if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
+                handleInputClick(1);
+
+            if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
+                handleInputClick(2);
+
+            if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
+                handleInputClick(3);
+
+            if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
+                handleInputClick(4);
+
+            if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5))
+                handleInputClick(5);
+
+            if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6))
+                handleInputClick(6);
+
+            if (Input.GetKeyDown(KeyCode.Alpha7) || Input.GetKeyDown(KeyCode.Keypad7))
+                handleInputClick(7);
+
+            if (Input.GetKeyDown(KeyCode.Alpha8) || Input.GetKeyDown(KeyCode.Keypad8))
+                handleInputClick(8);
+
+            if (Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Keypad9))
+                handleInputClick(9);
 	    }
     }
 }

@@ -56,7 +56,7 @@
     <Compile Include="Assets\Scripts\Solvers\BacktrackingSolver.cs" />
     <Compile Include="Assets\Scripts\Solvers\BacktrackingSolver2.cs" />
     <Compile Include="Assets\Scripts\Solvers\BaseSolver.cs" />
-    <Compile Include="Assets\Scripts\Solvers\DancingLinks\DancingLinks.cs" />
+    <Compile Include="Assets\Scripts\Solvers\DancingLinks\SudokuDancingLinks.cs" />
     <Compile Include="Assets\Scripts\SudokuBoard.cs" />
     <Compile Include="Assets\Scripts\SudokuSlot.cs" />
     <Compile Include="Assets\ThirdPartyPlugins\iTween\iTween.cs" />
