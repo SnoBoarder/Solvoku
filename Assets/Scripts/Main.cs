@@ -9,6 +9,7 @@ namespace Assets.Scripts
         public SudokuBoard _board;
         public GameObject _inputContainer;
         public Button _solveButton;
+        public Button _clearButton;
 
         // prefabs
         public GameObject _sudokuSlotPrefab;
@@ -28,6 +29,7 @@ namespace Assets.Scripts
                 return;
 
             _solveButton.onClick += solveBoard;
+            _clearButton.onClick += clearBoard;
 
             int len = _inputSlots.Count;
             for (int i = 0; i < len; ++i)
@@ -42,6 +44,7 @@ namespace Assets.Scripts
                 return;
 
             _solveButton.onClick -= solveBoard;
+            _clearButton.onClick -= clearBoard;
 
             int len = _inputSlots.Count;
             for (int i = 0; i < len; ++i)
@@ -53,6 +56,11 @@ namespace Assets.Scripts
         private void solveBoard()
         {
             _board.solve(SudokuBoard.SolverTypes.EXACT_COVER);
+        }
+
+        private void clearBoard()
+        {
+            _board.clear();
         }
 
         private void createInputSlots()

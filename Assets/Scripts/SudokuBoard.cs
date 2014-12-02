@@ -55,7 +55,7 @@ namespace Assets.Scripts
             createSlots();
 
             // use test board
-            //testBoard();
+            testBoard();
         }
 
         private void testBoard()
@@ -111,6 +111,15 @@ namespace Assets.Scripts
         {
             _selectedSlot.setTextColor(_textSetupColor);
             _selectedSlot.slotValue = newValue;
+        }
+
+        public void clear()
+        {
+            int len = _slots.Count;
+            for (int i = 0; i < len; ++i)
+            {
+                _slots[i].slotValue = EMPTY_CELL;
+            }
         }
 
         public void solve(SolverTypes type)
