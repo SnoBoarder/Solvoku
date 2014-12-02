@@ -124,20 +124,22 @@ namespace Assets.Scripts
 
         public void solve(SolverTypes type)
         {
-            // update cell value with slot values
-            /*
             int len = _slots.Count;
             string str = "";
             for (int i = 0; i < len; ++i)
-            {
+            { // poulate the cells array wit the slots values
                 _cells[i] = _slots[i].slotValue;
-                str += _cells[i];
-                if (i + 1 < len)
-                    str += ",";
+
+                if (Main.DEBUG_ENABLED)
+                {
+                    str += _cells[i];
+                    if (i + 1 < len)
+                        str += ",";
+                }
             }
 
-            Debug.Log(str);
-            */
+            if (Main.DEBUG_ENABLED)
+                Debug.Log(str);
 
             // TODO: DECIDE HERE WHICH SOLVER TO USE
             switch (type)
@@ -155,7 +157,7 @@ namespace Assets.Scripts
             }
 
             SudokuSlot slot;
-            int len = _slots.Count;
+            len = _slots.Count;
             for (int i = 0; i < len; ++i)
             {
                 slot = _slots[i];

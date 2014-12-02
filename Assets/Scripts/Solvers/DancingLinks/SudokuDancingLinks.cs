@@ -181,7 +181,8 @@ namespace Assets.Scripts.Solvers.DancingLinks
             loadData(_cells); // load given sudoku board
             search(0); // search AND populate cells once found.
 
-            Debug.Log("deepest depth:" + _maxDepth);
+            if (Main.DEBUG_ENABLED)
+                Debug.Log("deepest depth:" + _maxDepth);
         }
 
         /// <summary>

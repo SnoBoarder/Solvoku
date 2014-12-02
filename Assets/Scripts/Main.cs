@@ -6,6 +6,8 @@ namespace Assets.Scripts
 {
     public class Main : MonoBehaviour
     {
+        public static bool DEBUG_ENABLED = false;
+
         public SudokuBoard _board;
         public GameObject _inputContainer;
         public Button _solveButton;
