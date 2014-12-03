@@ -41,4 +41,4 @@ Sudoku Solver Unity Application
 					- https://www.ocf.berkeley.edu/~jchu/publicportal/sudoku/sudoku.paper.html
 					- https://www.ocf.berkeley.edu/~jchu/publicportal/sudoku/0011047.pdf
 					- http://garethrees.org/2007/06/10/zendoku-generation/
-
+					- http://www.sudokuwiki.org/sudoku.htm 
