@@ -130,7 +130,7 @@ namespace Assets.Scripts
             _selectedSlot.slotValue = newValue;
 
             if (newValue == EMPTY_CELL)
-                _selectedSlot.unhighlight();
+                clearSelectedSlot();
         }
 
         /// <summary>
@@ -138,8 +138,7 @@ namespace Assets.Scripts
         /// </summary>
         public void clear()
         {
-            if (_selectedSlot != null)
-                _selectedSlot.unhighlight();
+            clearSelectedSlot();
 
             int len = _slots.Count;
             for (int i = 0; i < len; ++i)
@@ -154,8 +153,7 @@ namespace Assets.Scripts
         /// <param name="type">Type of solver to use.</param>
         public void solve(SolverTypes type)
         {
-            if (_selectedSlot != null)
-                _selectedSlot.unhighlight();
+            clearSelectedSlot();
 
             int markedSlots = 0;
 
@@ -209,6 +207,15 @@ namespace Assets.Scripts
                     slot.setTextColor(_textAnswerColor);
                     slot.slotValue = _cells[i];
                 }
+            }
+        }
+
+        private void clearSelectedSlot()
+        {
+            if (_selectedSlot != null)
+            {
+                _selectedSlot.unhighlight();
+                _selectedSlot = null;
             }
         }
 

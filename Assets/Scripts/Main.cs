@@ -132,9 +132,12 @@ namespace Assets.Scripts
         {
             _board.updateSelectedSlot(inputId);
         }
-	
+
 	    // Update is called once per frame
 	    void Update () {
+            if (Input.GetKeyDown(KeyCode.Escape)) // see if the android BACK button was pressed.
+                Application.Quit();
+
             if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
                 handleInputClick(1);
 
