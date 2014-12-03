@@ -9,7 +9,7 @@ namespace Assets.Scripts
 {
     public class SudokuBoard : MonoBehaviour
     {
-        public enum SolverTypes { BRUTE_FORCE, BACKTRACKING, SCHOTASTIC, EXACT_COVER };
+        public enum SolverTypes { BACKTRACKING, EXACT_COVER };
 
         public const int MINIMUM_CELL_COUNT = 20;
 
@@ -60,14 +60,14 @@ namespace Assets.Scripts
             createSlots();
 
             // use test board
-            testBoard();
+            //testBoard();
         }
 
+        /// <summary>
+        /// For unit testing purposes
+        /// </summary>
         private void testBoard()
         {
-            //string sudokuStr = "6,7,2,1,4,5,3,9,8,1,4,5,9,8,3,6,7,2,3,8,9,7,6,2,4,5,1,2,6,3,5,7,4,8,1,9,9,5,8,6,2,1,7,4,3,7,1,4,3,9,8,5,2,6,5,9,7,2,3,6,1,8,4,4,2,6,8,1,7,9,3,5,8,3,1,4,5,9,2,6,7";
-
-
             //string sudokuStr = "0,0,0,1,0,5,0,0,0,1,4,0,0,0,0,6,7,0,0,8,0,0,0,2,4,0,0,0,6,3,0,7,0,0,1,0,9,0,0,0,0,0,0,0,3,0,1,0,0,9,0,5,2,0,0,0,7,2,0,0,0,8,0,0,2,6,0,0,0,0,3,5,0,0,0,4,0,9,0,0,0";
             //6,7,2,1,4,5,3,9,8,
             //1,4,5,9,8,3,6,7,2,
@@ -113,6 +113,10 @@ namespace Assets.Scripts
             }
         }
 
+        /// <summary>
+        /// Update the selected slot with the value inputted.
+        /// </summary>
+        /// <param name="newValue"></param>
         public void updateSelectedSlot(int newValue)
         {
             if (_selectedSlot == null)
@@ -129,6 +133,9 @@ namespace Assets.Scripts
                 _selectedSlot.unhighlight();
         }
 
+        /// <summary>
+        /// Clear the board of all values
+        /// </summary>
         public void clear()
         {
             if (_selectedSlot != null)
@@ -141,6 +148,10 @@ namespace Assets.Scripts
             }
         }
 
+        /// <summary>
+        /// Solve the board based on solver type.
+        /// </summary>
+        /// <param name="type">Type of solver to use.</param>
         public void solve(SolverTypes type)
         {
             if (_selectedSlot != null)
@@ -178,8 +189,6 @@ namespace Assets.Scripts
             // TODO: DECIDE HERE WHICH SOLVER TO USE
             switch (type)
             {
-                case SolverTypes.BRUTE_FORCE:
-                    break;
                 case SolverTypes.BACKTRACKING:
                     //BacktrackingSolver.solve(_cells);
                     BacktrackingSolver2.solve(_cells);
@@ -203,6 +212,10 @@ namespace Assets.Scripts
             }
         }
 
+        /// <summary>
+        /// Handle the currently selected slot.
+        /// </summary>
+        /// <param name="slotId"></param>
         private void handleSlotClick(int slotId)
         {
             if (_selectedSlot != null)
@@ -212,6 +225,9 @@ namespace Assets.Scripts
             _selectedSlot.highlight();
         }
 
+        /// <summary>
+        /// Dynamically create the visual slots for the sudoku board
+        /// </summary>
         private void createSlots()
         {
             int row;
@@ -300,25 +316,35 @@ namespace Assets.Scripts
             }
         }
 
+        /// <summary>
+        /// Get slot based on row and column
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="col"></param>
+        /// <returns></returns>
         public SudokuSlot getSlotAt(int row, int col)
         {
             return _slots[row * NUM_COLS + col];
         }
 
+        /// <summary>
+        /// Get the row of a slot
+        /// </summary>
+        /// <param name="slot"></param>
+        /// <returns></returns>
         public int getRowOfSlot(int slot)
         {
             return slot / NUM_COLS;
         }
 
+        /// <summary>
+        /// Get the column of a slot
+        /// </summary>
+        /// <param name="slot"></param>
+        /// <returns></returns>
         public int getColOfSlot(int slot)
         {
             return slot % NUM_COLS;
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
         }
     }
 }

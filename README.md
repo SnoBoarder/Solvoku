@@ -55,3 +55,4 @@ Sudoku Solver Unity Application
 	- Ads?!?!! hahaha
 	- Write paper
 	- prepare presentation
+		- Show dancing links next to matrix representation
