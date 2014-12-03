@@ -12,9 +12,11 @@ namespace Assets.Scripts
         public GameObject _inputContainer;
         public Button _solveButton;
         public Button _clearButton;
+        public TextMesh _errorHandling;
 
         // prefabs
         public GameObject _sudokuSlotPrefab;
+        public GameObject _sudokuSlotDeletPrefab;
 
         // input slots
         private List<SudokuSlot> _inputSlots;
@@ -32,6 +34,7 @@ namespace Assets.Scripts
 
             _solveButton.onClick += solveBoard;
             _clearButton.onClick += clearBoard;
+            _board.onError += handleError;
 
             int len = _inputSlots.Count;
             for (int i = 0; i < len; ++i)
@@ -47,6 +50,7 @@ namespace Assets.Scripts
 
             _solveButton.onClick -= solveBoard;
             _clearButton.onClick -= clearBoard;
+            _board.onError -= handleError;
 
             int len = _inputSlots.Count;
             for (int i = 0; i < len; ++i)
@@ -65,33 +69,63 @@ namespace Assets.Scripts
             _board.clear();
         }
 
+        private void handleError(string error)
+        {
+            CancelInvoke("clearError");
+
+            _errorHandling.text = error;
+
+            Invoke("clearError", 5.0f);
+        }
+
+        private void clearError()
+        {
+            _errorHandling.text = "";
+        }
+
         private void createInputSlots()
         {
             _inputSlots = new List<SudokuSlot>();
 
             Vector3 pos = Vector3.zero;
-
-            GameObject gObj;
-            SudokuSlot slot;
-            for (int i = 0; i < SudokuBoard.NUM_COLS; ++i)
+            pos.y = -3.75f;
+            int i;
+            for (i = 0; i < 4; ++i)
             {
-                pos.x = i - SudokuBoard.NUM_HALF_COL;
-                pos.y = -4;
+                pos.x = i - SudokuBoard.NUM_HALF_COL / 2 + 1;
 
-                gObj = (GameObject)Instantiate(_sudokuSlotPrefab, Vector3.zero, Quaternion.identity);
-                gObj.transform.parent = _inputContainer.transform;
-                gObj.transform.localPosition = pos; // explicitly set the position of the slot
+                addSlot(_sudokuSlotPrefab, i, pos, i % 2 == 0 ? _board._slotBackgroundColorB : _board._slotBackgroundColorA);
+            }
 
-                slot = gObj.GetComponent<SudokuSlot>();
-                slot.setBackgroundColor(i % 2 == 0 ? _board._slotBackgroundColorB : _board._slotBackgroundColorA);
-                slot.slotValue = i + 1;
-                slot.id = i + 1;
+            // add delete key
+            pos.x = i - SudokuBoard.NUM_HALF_COL / 2 + 1;
 
-                _inputSlots.Add(slot);
+            addSlot(_sudokuSlotDeletPrefab, -1, pos, Color.white);
+
+            pos.y = -4.75f;
+            for (; i < 9; ++i)
+            {
+                pos.x = i - 4 - SudokuBoard.NUM_HALF_COL / 2 + 1;
+
+                addSlot(_sudokuSlotPrefab, i, pos, i % 2 == 0 ? _board._slotBackgroundColorA : _board._slotBackgroundColorB);
             }
 
             // force OnEnable to be called so that the events are handled properly at the beginning
             OnEnable();
+        }
+
+        private void addSlot(GameObject prefab, int index, Vector3 pos, Color c)
+        {
+            GameObject gObj = (GameObject)Instantiate(prefab, Vector3.zero, Quaternion.identity);
+            gObj.transform.parent = _inputContainer.transform;
+            gObj.transform.localPosition = pos; // explicitly set the position of the slot
+
+            SudokuSlot slot = gObj.GetComponent<SudokuSlot>();
+            slot.setBackgroundColor(c);
+            slot.slotValue = index + 1;
+            slot.id = index + 1;
+
+            _inputSlots.Add(slot);
         }
 
         private void handleInputClick(int inputId)
@@ -127,6 +161,9 @@ namespace Assets.Scripts
 
             if (Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Keypad9))
                 handleInputClick(9);
+
+            if (Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Delete))
+                handleInputClick(0);
 	    }
     }
 }

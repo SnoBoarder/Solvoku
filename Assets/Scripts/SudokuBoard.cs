@@ -11,6 +11,8 @@ namespace Assets.Scripts
     {
         public enum SolverTypes { BRUTE_FORCE, BACKTRACKING, SCHOTASTIC, EXACT_COVER };
 
+        public const int MINIMUM_CELL_COUNT = 20;
+
         public const int EMPTY_CELL = 0;
 
         public const int NUM_ROWS = 9;
@@ -21,6 +23,9 @@ namespace Assets.Scripts
 
         public const int NUM_HALF_ROW = 4; // 9 divided by 2 round down
         public const int NUM_HALF_COL = 4; // 9 divided by 2 round down
+
+        public delegate void OnError(string error);
+        public event OnError onError;
 
         // prefabs
         public GameObject _sudokuSlotPrefab;
@@ -110,12 +115,25 @@ namespace Assets.Scripts
 
         public void updateSelectedSlot(int newValue)
         {
+            if (_selectedSlot == null)
+            {
+                if (onError != null)
+                    onError("Please select a slot before inputting.");
+                return;
+            }
+
             _selectedSlot.setTextColor(_textSetupColor);
             _selectedSlot.slotValue = newValue;
+
+            if (newValue == EMPTY_CELL)
+                _selectedSlot.unhighlight();
         }
 
         public void clear()
         {
+            if (_selectedSlot != null)
+                _selectedSlot.unhighlight();
+
             int len = _slots.Count;
             for (int i = 0; i < len; ++i)
             {
@@ -125,11 +143,19 @@ namespace Assets.Scripts
 
         public void solve(SolverTypes type)
         {
+            if (_selectedSlot != null)
+                _selectedSlot.unhighlight();
+
+            int markedSlots = 0;
+
             int len = _slots.Count;
             string str = "";
             for (int i = 0; i < len; ++i)
             { // poulate the cells array wit the slots values
                 _cells[i] = _slots[i].slotValue;
+
+                if (_cells[i] != EMPTY_CELL)
+                    markedSlots++;
 
                 if (Main.DEBUG_ENABLED)
                 {
@@ -137,6 +163,13 @@ namespace Assets.Scripts
                     if (i + 1 < len)
                         str += ",";
                 }
+            }
+
+            if (markedSlots < MINIMUM_CELL_COUNT)
+            {
+                if (onError != null)
+                    onError("Board setup would take way too long to solve. Try again.");
+                return;
             }
 
             if (Main.DEBUG_ENABLED)

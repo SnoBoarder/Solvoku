@@ -42,3 +42,16 @@ Sudoku Solver Unity Application
 					- https://www.ocf.berkeley.edu/~jchu/publicportal/sudoku/0011047.pdf
 					- http://garethrees.org/2007/06/10/zendoku-generation/
 					- http://www.sudokuwiki.org/sudoku.htm 
+- Added clear button
+- Added delete button
+- Updated visuals
+- Added basic error handling:
+	- Minimum amount of set cells.
+	- No selected slot when inputting.
+- Added Title
+- Added deselection
+- TODO:
+	- Add more error handling?
+	- Ads?!?!! hahaha
+	- Write paper
+	- prepare presentation
