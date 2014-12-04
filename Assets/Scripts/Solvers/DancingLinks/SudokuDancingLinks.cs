@@ -31,6 +31,8 @@ namespace Assets.Scripts.Solvers.DancingLinks
 
         private int _maxDepth = 0; // debug member variable to know how deep the search algorithm goes for a given sudoku board.
 
+        private int _actions = 0;
+        
         /// <summary>
         /// Initialize the matrix root, headers, and nodes.
         /// This populates every single possible scenario of the Sudoku game.
@@ -92,6 +94,16 @@ namespace Assets.Scripts.Solvers.DancingLinks
                     addRow(value, i, rowIndex, colIndex, boxIndex); // adds a row to the matrix and to the _rows array
                 }
             }
+        }
+
+        public int getActionCount()
+        {
+            return _actions;
+        }
+
+        public int getMaxDepthLevel()
+        {
+            return _maxDepth;
         }
 
         /// <summary>
@@ -180,9 +192,6 @@ namespace Assets.Scripts.Solvers.DancingLinks
 
             loadData(_cells); // load given sudoku board
             search(0); // search AND populate cells once found.
-
-            if (Main.DEBUG_ENABLED)
-                Debug.Log("deepest depth:" + _maxDepth);
         }
 
         /// <summary>
@@ -241,6 +250,8 @@ namespace Assets.Scripts.Solvers.DancingLinks
                 {
                     node = solution[i];
                     _cells[node.index] = node.value;
+
+                    ++_actions;
                 }
                 return;
             }
@@ -256,6 +267,8 @@ namespace Assets.Scripts.Solvers.DancingLinks
                 for (Node rightNode = rowNode.right; rightNode != rowNode; rightNode = rightNode.right)
                 { // traverse and cover every node going right as long as we're not the current node
                     cover(rightNode.header);
+
+                    ++_actions;
                 }
 
                 search(depth + 1);
@@ -266,6 +279,8 @@ namespace Assets.Scripts.Solvers.DancingLinks
                 for (Node leftNode = rowNode.left; leftNode != rowNode; leftNode = leftNode.left)
                 { // traverse and uncover every node going left as long as we're not the current node
                     uncover(leftNode.header);
+
+                    ++_actions;
                 }
             }
 
@@ -282,6 +297,8 @@ namespace Assets.Scripts.Solvers.DancingLinks
             column.right.left = column.left;
             column.left.right = column.right;
 
+            ++_actions;
+
             for (Node rowNode = column.down; rowNode != column; rowNode = rowNode.down)
             { // traverse down the column
                 for (Node rightNode = rowNode.right; rightNode != rowNode; rightNode = rightNode.right)
@@ -291,6 +308,8 @@ namespace Assets.Scripts.Solvers.DancingLinks
                     
                     // decrement header count
                     --rightNode.header.count;
+
+                    ++_actions;
                 }
             }
         }
@@ -313,12 +332,16 @@ namespace Assets.Scripts.Solvers.DancingLinks
 
                     // increment header count
                     ++leftNode.header.count;
+
+                    ++_actions;
                 }
             }
 
             // add the column back into the list
             column.right.left = column;
             column.left.right = column;
+
+            ++_actions;
         }
 
         /// <summary>
@@ -338,6 +361,8 @@ namespace Assets.Scripts.Solvers.DancingLinks
                     lowestCount = count;
                     targetCol = node;
                 }
+
+                ++_actions;
             }
 
             return (HeaderNode)targetCol;

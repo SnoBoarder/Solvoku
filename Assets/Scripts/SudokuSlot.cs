@@ -5,6 +5,9 @@ namespace Assets.Scripts
 {
     public class SudokuSlot : MonoBehaviour
     {
+        public static Color textSetupColor;
+        public static Color textAnswerColor;
+
         public delegate void SlotClickEvent(int id);
         public event SlotClickEvent slotClick;
 
@@ -48,6 +51,11 @@ namespace Assets.Scripts
         public void setTextColor(Color c)
         {
             _text.color = c;
+        }
+
+        public bool isAnswer
+        {
+            get { return _text.color == textAnswerColor; }
         }
 
         public void setBackgroundColor(Color c)

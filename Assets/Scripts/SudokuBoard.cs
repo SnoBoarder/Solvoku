@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System;
 using Assets.Scripts.Solvers;
 using Assets.Scripts.Solvers.DancingLinks;
 
@@ -24,8 +24,8 @@ namespace Assets.Scripts
         public const int NUM_HALF_ROW = 4; // 9 divided by 2 round down
         public const int NUM_HALF_COL = 4; // 9 divided by 2 round down
 
-        public delegate void OnError(string error);
-        public event OnError onError;
+        public delegate void OnMessage(string error, float time = 4.0f);
+        public event OnMessage onMessage;
 
         // prefabs
         public GameObject _sudokuSlotPrefab;
@@ -43,7 +43,7 @@ namespace Assets.Scripts
         // helper arrays
         private SudokuSlot[,] _rowsOfSlots;
         private SudokuSlot[,] _colsOfSlots;
-        private SudokuSlot[,] _gridsOfSlots;
+        private SudokuSlot[,] _regionsOfSlots;
 
         private SudokuSlot _selectedSlot = null;
 
@@ -52,9 +52,12 @@ namespace Assets.Scripts
         // Use this for initialization
         void Start()
         {
+            SudokuSlot.textSetupColor = _textSetupColor;
+            SudokuSlot.textAnswerColor = _textAnswerColor;
+
             _cells = new int[SudokuBoard.NUM_ROWS * SudokuBoard.NUM_COLS];
 
-            BaseSolver.init();
+            BacktrackingSolver.init();
 
             // instantiate the board
             createSlots();
@@ -68,17 +71,14 @@ namespace Assets.Scripts
         /// </summary>
         private void testBoard()
         {
+            // easy setup
             //string sudokuStr = "0,0,0,1,0,5,0,0,0,1,4,0,0,0,0,6,7,0,0,8,0,0,0,2,4,0,0,0,6,3,0,7,0,0,1,0,9,0,0,0,0,0,0,0,3,0,1,0,0,9,0,5,2,0,0,0,7,2,0,0,0,8,0,0,2,6,0,0,0,0,3,5,0,0,0,4,0,9,0,0,0";
-            //6,7,2,1,4,5,3,9,8,
-            //1,4,5,9,8,3,6,7,2,
-            //3,8,9,7,6,2,4,5,1,
-            //2,6,3,5,7,4,8,1,9,
-            //9,5,8,6,2,1,7,4,3,
-            //7,1,4,3,9,8,5,2,6,
-            //5,9,7,2,3,6,1,8,4,
-            //4,2,6,8,1,7,9,3,5,
-            //8,3,1,4,5,9,2,6,7
-            string sudokuStr = "3,0,9,0,0,0,4,0,0,2,0,0,7,0,9,0,0,0,0,8,7,0,0,0,0,0,0,7,5,0,0,6,0,2,3,0,6,0,0,9,0,4,0,0,8,0,2,8,0,5,0,0,4,1,0,0,0,0,0,0,5,9,0,0,0,0,1,0,6,0,0,7,0,0,6,0,0,0,1,0,4";
+
+            // hard setup
+            //string sudokuStr = "3,0,9,0,0,0,4,0,0,2,0,0,7,0,9,0,0,0,0,8,7,0,0,0,0,0,0,7,5,0,0,6,0,2,3,0,6,0,0,9,0,4,0,0,8,0,2,8,0,5,0,0,4,1,0,0,0,0,0,0,5,9,0,0,0,0,1,0,6,0,0,7,0,0,6,0,0,0,1,0,4";
+
+            // evil setup
+            string sudokuStr = "0,0,0,0,9,6,0,3,0,0,0,0,1,4,0,0,0,5,0,1,4,7,0,0,0,0,0,0,0,1,0,0,0,0,8,0,0,3,0,8,0,7,0,9,0,0,5,0,0,0,0,6,0,0,0,0,0,0,0,1,9,5,0,7,0,0,0,2,4,0,0,0,0,9,0,3,5,0,0,0,0";
 
             string[] sudokuArr = sudokuStr.Split(',');
             int len = sudokuArr.Length;
@@ -121,8 +121,8 @@ namespace Assets.Scripts
         {
             if (_selectedSlot == null)
             {
-                if (onError != null)
-                    onError("Please select a slot before inputting.");
+                if (onMessage != null)
+                    onMessage("Please select a slot before inputting.");
                 return;
             }
 
@@ -144,6 +144,21 @@ namespace Assets.Scripts
             for (int i = 0; i < len; ++i)
             {
                 _slots[i].slotValue = EMPTY_CELL;
+            }
+        }
+
+        public void clearAnswers()
+        {
+            clearSelectedSlot();
+
+            SudokuSlot slot;
+            int len = _slots.Count;
+            for (int i = 0; i < len; ++i)
+            {
+                slot = _slots[i];
+
+                if (slot.isAnswer)
+                    slot.slotValue = EMPTY_CELL;
             }
         }
 
@@ -176,24 +191,44 @@ namespace Assets.Scripts
 
             if (markedSlots < MINIMUM_CELL_COUNT)
             {
-                if (onError != null)
-                    onError("Board setup would take way too long to solve. Try again.");
+                if (onMessage != null)
+                    onMessage("Board setup way too small. Try again.");
+                return;
+            }
+
+            if (!BacktrackingSolver.validBoard(_cells))
+            {
+                if (onMessage != null)
+                    onMessage("Board setup invalid! Try again.");
                 return;
             }
 
             if (Main.DEBUG_ENABLED)
                 Debug.Log(str);
 
-            // TODO: DECIDE HERE WHICH SOLVER TO USE
+            long startTime = 0;
+            long functionTime = 0;
+            int totalActions = 0;
+            int maxDepth = 0;
+
             switch (type)
             {
                 case SolverTypes.BACKTRACKING:
-                    //BacktrackingSolver.solve(_cells);
-                    BacktrackingSolver2.solve(_cells);
+                    startTime = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+                    BacktrackingSolver.solve(_cells);
+                    functionTime = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond - startTime;
+
+                    totalActions = BacktrackingSolver.getActionCount();
+                    maxDepth = BacktrackingSolver.getMaxDepthLevel();
                     break;
                 case SolverTypes.EXACT_COVER:
                     SudokuDancingLinks dl = new SudokuDancingLinks();
+                    startTime = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
                     dl.loadAndSearch(_cells);
+                    functionTime = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond - startTime;
+
+                    totalActions = dl.getActionCount();
+                    maxDepth = dl.getMaxDepthLevel();
                     break;
             }
 
@@ -208,6 +243,22 @@ namespace Assets.Scripts
                     slot.slotValue = _cells[i];
                 }
             }
+            
+            // compile result string
+            string result = "Total Time: " + functionTime + "ms";
+            result += "\nTotal Actions: " + string.Format("{0:n0}", totalActions);
+            result += "\nMax Depth: " + maxDepth;
+
+            string singleLineResult = "Total Time: " + functionTime + "ms. Total Actions: " + string.Format("{0:n0}", totalActions) + ". Max Depth: " + maxDepth;
+
+            Debug.Log(singleLineResult);
+
+#if UNITY_ANDROID
+            new MobileNativeMessage(type + " SOLVER RESULTS:", result);
+#else
+            if (onMessage != null)
+                onMessage(singleLineResult, 0);
+#endif
         }
 
         private void clearSelectedSlot()
@@ -292,7 +343,7 @@ namespace Assets.Scripts
             }
 
             // look up table for every grid
-            _gridsOfSlots = new SudokuSlot[9, 9];
+            _regionsOfSlots = new SudokuSlot[9, 9];
             int oneGridCurrentSize;
             for (int grid = 0; grid < NUM_GRIDS; ++grid)
             {
@@ -304,7 +355,7 @@ namespace Assets.Scripts
                         int currRow = Convert.ToInt32(grid / THIRD_OF_GRID) * THIRD_OF_GRID + row;
                         int currCol = (grid % THIRD_OF_GRID) * THIRD_OF_GRID + col;
 
-                        _gridsOfSlots[grid, oneGridCurrentSize] = getSlotAt(currRow, currCol);
+                        _regionsOfSlots[grid, oneGridCurrentSize] = getSlotAt(currRow, currCol);
                         ++oneGridCurrentSize;
                     }
                 }
@@ -318,7 +369,7 @@ namespace Assets.Scripts
 
                 for (int j = 0; j < NUM_GRIDS; ++j)
                 {
-                    _gridsOfSlots[i, j].setBackgroundColor(currColor);
+                    _regionsOfSlots[i, j].setBackgroundColor(currColor);
                 }
             }
         }

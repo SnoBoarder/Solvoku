@@ -11,7 +11,10 @@ namespace Assets.Scripts
         public SudokuBoard _board;
         public GameObject _inputContainer;
         public Button _solveButton;
-        public Button _clearButton;
+        public Button _clearAllButton;
+        public Button _clearAnswersButton;
+        public SolverSelectionButton _backtrackingButton;
+        public SolverSelectionButton _exactCoverButton;
         public TextMesh _errorHandling;
 
         // prefabs
@@ -21,10 +24,21 @@ namespace Assets.Scripts
         // input slots
         private List<SudokuSlot> _inputSlots;
 
+        private SolverSelectionButton _selectedSolver;
+
 	    // Use this for initialization
 	    void Start ()
         {
             createInputSlots();
+
+            // set solver types
+            _backtrackingButton.solverType = SudokuBoard.SolverTypes.BACKTRACKING;
+            _exactCoverButton.solverType = SudokuBoard.SolverTypes.EXACT_COVER;
+
+            // defaulting exact cover
+            _backtrackingButton.selected = false;
+            _exactCoverButton.selected = true;
+            _selectedSolver = _exactCoverButton;
 	    }
 
         void OnEnable()
@@ -33,8 +47,12 @@ namespace Assets.Scripts
                 return;
 
             _solveButton.onClick += solveBoard;
-            _clearButton.onClick += clearBoard;
-            _board.onError += handleError;
+            _clearAllButton.onClick += clearBoard;
+            _clearAnswersButton.onClick += clearAnswers;
+            _board.onMessage += handleMessage;
+
+            _backtrackingButton.onClick += selectBacktrack;
+            _exactCoverButton.onClick += selectExactCover;
 
             int len = _inputSlots.Count;
             for (int i = 0; i < len; ++i)
@@ -49,8 +67,9 @@ namespace Assets.Scripts
                 return;
 
             _solveButton.onClick -= solveBoard;
-            _clearButton.onClick -= clearBoard;
-            _board.onError -= handleError;
+            _clearAllButton.onClick -= clearBoard;
+            _clearAnswersButton.onClick -= clearAnswers;
+            _board.onMessage -= handleMessage;
 
             int len = _inputSlots.Count;
             for (int i = 0; i < len; ++i)
@@ -59,9 +78,35 @@ namespace Assets.Scripts
             }
         }
 
+        /// <summary>
+        /// Set solver to the backtracking algorithm
+        /// </summary>
+        private void selectBacktrack()
+        {
+            if (_selectedSolver == _backtrackingButton)
+                return; // already been set
+
+            _backtrackingButton.selected = true;
+            _exactCoverButton.selected = false;
+            _selectedSolver = _backtrackingButton;
+        }
+
+        /// <summary>
+        /// Set solver to the exact cover algorithm
+        /// </summary>
+        private void selectExactCover()
+        {
+            if (_selectedSolver == _exactCoverButton)
+                return; // already been set
+
+            _backtrackingButton.selected = false;
+            _exactCoverButton.selected = true;
+            _selectedSolver = _exactCoverButton;
+        }
+
         private void solveBoard()
         {
-            _board.solve(SudokuBoard.SolverTypes.EXACT_COVER);
+            _board.solve(_selectedSolver.solverType);
         }
 
         private void clearBoard()
@@ -69,16 +114,22 @@ namespace Assets.Scripts
             _board.clear();
         }
 
-        private void handleError(string error)
+        private void clearAnswers()
         {
-            CancelInvoke("clearError");
+            _board.clearAnswers();
+        }
+
+        private void handleMessage(string error, float time)
+        {
+            CancelInvoke("clearMessage");
 
             _errorHandling.text = error;
 
-            Invoke("clearError", 5.0f);
+            if (time > 0)
+                Invoke("clearMessage", time);
         }
 
-        private void clearError()
+        private void clearMessage()
         {
             _errorHandling.text = "";
         }
@@ -92,20 +143,20 @@ namespace Assets.Scripts
             int i;
             for (i = 0; i < 4; ++i)
             {
-                pos.x = i - SudokuBoard.NUM_HALF_COL / 2 + 1;
+                pos.x = i - SudokuBoard.NUM_HALF_COL / 2 + 2;
 
                 addSlot(_sudokuSlotPrefab, i, pos, i % 2 == 0 ? _board._slotBackgroundColorB : _board._slotBackgroundColorA);
             }
 
             // add delete key
-            pos.x = i - SudokuBoard.NUM_HALF_COL / 2 + 1;
+            pos.x = i - SudokuBoard.NUM_HALF_COL / 2 + 2;
 
             addSlot(_sudokuSlotDeletPrefab, -1, pos, Color.white);
 
             pos.y = -4.75f;
             for (; i < 9; ++i)
             {
-                pos.x = i - 4 - SudokuBoard.NUM_HALF_COL / 2 + 1;
+                pos.x = i - 4 - SudokuBoard.NUM_HALF_COL / 2 + 2;
 
                 addSlot(_sudokuSlotPrefab, i, pos, i % 2 == 0 ? _board._slotBackgroundColorA : _board._slotBackgroundColorB);
             }
