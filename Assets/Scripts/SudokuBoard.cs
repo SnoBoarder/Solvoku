@@ -9,7 +9,9 @@ namespace Assets.Scripts
 {
     public class SudokuBoard : MonoBehaviour
     {
-        public enum SolverTypes { BACKTRACKING, EXACT_COVER };
+        public const string ERROR_MIN_NOT_REACHED = "Board setup is too small. Try again.";
+        public const string ERROR_INVALID_BOARD = "Board setup has errors! Try again.";
+        public const string ERROR_NO_SELECTION = "Please select a slot before inputting.";
 
         public const int MINIMUM_CELL_COUNT = 20;
 
@@ -23,6 +25,8 @@ namespace Assets.Scripts
 
         public const int NUM_HALF_ROW = 4; // 9 divided by 2 round down
         public const int NUM_HALF_COL = 4; // 9 divided by 2 round down
+        
+        public enum SolverTypes { BACKTRACKING, EXACT_COVER };
 
         public delegate void OnMessage(string error, float time = 4.0f);
         public event OnMessage onMessage;
@@ -72,13 +76,13 @@ namespace Assets.Scripts
         private void testBoard()
         {
             // easy setup
-            //string sudokuStr = "0,0,0,1,0,5,0,0,0,1,4,0,0,0,0,6,7,0,0,8,0,0,0,2,4,0,0,0,6,3,0,7,0,0,1,0,9,0,0,0,0,0,0,0,3,0,1,0,0,9,0,5,2,0,0,0,7,2,0,0,0,8,0,0,2,6,0,0,0,0,3,5,0,0,0,4,0,9,0,0,0";
+            string sudokuStr = "0,0,0,1,0,5,0,0,0,1,4,0,0,0,0,6,7,0,0,8,0,0,0,2,4,0,0,0,6,3,0,7,0,0,1,0,9,0,0,0,0,0,0,0,3,0,1,0,0,9,0,5,2,0,0,0,7,2,0,0,0,8,0,0,2,6,0,0,0,0,3,5,0,0,0,4,0,9,0,0,0";
 
             // hard setup
             //string sudokuStr = "3,0,9,0,0,0,4,0,0,2,0,0,7,0,9,0,0,0,0,8,7,0,0,0,0,0,0,7,5,0,0,6,0,2,3,0,6,0,0,9,0,4,0,0,8,0,2,8,0,5,0,0,4,1,0,0,0,0,0,0,5,9,0,0,0,0,1,0,6,0,0,7,0,0,6,0,0,0,1,0,4";
 
             // evil setup
-            string sudokuStr = "0,0,0,0,9,6,0,3,0,0,0,0,1,4,0,0,0,5,0,1,4,7,0,0,0,0,0,0,0,1,0,0,0,0,8,0,0,3,0,8,0,7,0,9,0,0,5,0,0,0,0,6,0,0,0,0,0,0,0,1,9,5,0,7,0,0,0,2,4,0,0,0,0,9,0,3,5,0,0,0,0";
+            //string sudokuStr = "0,0,0,0,9,6,0,3,0,0,0,0,1,4,0,0,0,5,0,1,4,7,0,0,0,0,0,0,0,1,0,0,0,0,8,0,0,3,0,8,0,7,0,9,0,0,5,0,0,0,0,6,0,0,0,0,0,0,0,1,9,5,0,7,0,0,0,2,4,0,0,0,0,9,0,3,5,0,0,0,0";
 
             string[] sudokuArr = sudokuStr.Split(',');
             int len = sudokuArr.Length;
@@ -122,7 +126,7 @@ namespace Assets.Scripts
             if (_selectedSlot == null)
             {
                 if (onMessage != null)
-                    onMessage("Please select a slot before inputting.");
+                    onMessage(ERROR_NO_SELECTION);
                 return;
             }
 
@@ -192,14 +196,14 @@ namespace Assets.Scripts
             if (markedSlots < MINIMUM_CELL_COUNT)
             {
                 if (onMessage != null)
-                    onMessage("Board setup way too small. Try again.");
+                    onMessage(ERROR_MIN_NOT_REACHED);
                 return;
             }
 
             if (!BacktrackingSolver.validBoard(_cells))
             {
                 if (onMessage != null)
-                    onMessage("Board setup invalid! Try again.");
+                    onMessage(ERROR_INVALID_BOARD);
                 return;
             }
 
